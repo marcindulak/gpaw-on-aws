@@ -108,7 +108,9 @@ will involve a bit of guesswork.
       You must **NOT** use you Amazon credentials for daily work on the cluster.
       For the purpose of this tutorial create the "gpaw-on-aws" group and "user1".
       Download the user's credentials (csv file) and store is secretly:
-      $ chmod 400 ~/Virtualenvs/project/credentials.csv
+
+          $ chmod 400 ~/Virtualenvs/project/credentials.csv
+      
       Add the user to the "gpaw-on-aws" group. Select the individual
       user and create a password using the "Manage Password" button.
       Write down the https://your_aws_account_id.signin.aws.amazon.com/console/
@@ -120,8 +122,10 @@ will involve a bit of guesswork.
    4. as "user1", in the top right corner choose the desirable Region (e.g. Frankfurt == eu-central-1)
 
    5. as "user1", open EC2 console (top left of the Amazon Web Services dashboard) and
-      create key pair named "gpaw-on-aws" and store the automatically downloaded
-      file secretly: $ chmod 400 ~/Virtualenvs/project/gpaw-on-aws.pem
+      create key pair named "gpaw-on-aws" and store the automatically downloaded file secretly:
+
+          $ chmod 400 ~/Virtualenvs/project/gpaw-on-aws.pem
+       
       The key is bound to the AWS region under which is has been created.
 
    6. as "user1", create an S3 bucket at https://console.aws.amazon.com/s3/
