@@ -155,7 +155,6 @@ CfnCluster creates by default ~/.cfncluster/config based on the provided
 answers with insecure file permissions. Move the file into the virtualenv
 and fix the permissions:
 
-    $ ~/Virtualenvs/project
     $ mv ~/.cfncluster/config .
     $ chmod 400 config
 
