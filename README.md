@@ -70,15 +70,15 @@ and initiate your research project virtualenv:
 the "(project)" appearing on the left of the shell prompt.
 In order to exit a given virtualenv do:
 
-    (project)ubuntu@laptop:~/Virtualenvs/project$ deactivate
+    (project)me@laptop:~/Virtualenvs/project$ deactivate
 
 Under an active virtualenv, install CfnCluster:
 
-    (project)ubuntu@laptop:~/Virtualenvs/project$ pip install cfncluster
+    (project)me@laptop:~/Virtualenvs/project$ pip install cfncluster
 
 Install also AWS Command Line Interface:
 
-    (project)ubuntu@laptop:~/Virtualenvs/project$ pip install awscli
+    (project)me@laptop:~/Virtualenvs/project$ pip install awscli
 
 The aws command line tools will be used to copy the [bootstrap.sh](bootstrap.sh) 
 software installation script onto AWS S3 (Simple Storage Service).
