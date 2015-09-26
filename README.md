@@ -9,8 +9,8 @@ The flexibility of AWS allows one to use CfnCluster to create one HPC cluster
 per research project and manage the cluster from e.g. a laptop computer.
 The separation of different project is crucial in order to achieve
 reproducible research. Another convenient feature of CfnCluster is auto-scaling,
-i.e. when no jobs are in the queue only the Master node is running.
-See http://cfncluster.readthedocs.org/en/latest/autoscaling.html
+i.e. when no jobs are in the queue only the Master node is running
+(http://cfncluster.readthedocs.org/en/latest/autoscaling.html).
 
 As an example GPAW (https://wiki.fysik.dtu.dk/gpaw/), a materials science code written in Python/C
 is run on the cluster using openmpi implementation of MPI (Message Passing Interface).
@@ -31,11 +31,11 @@ Install Python Virtualenv and Git with::
 
   - on Debian/Ubuntu:
 
-    $ sudo apt-get install -y python-virtualenv git
+        $ sudo apt-get install -y python-virtualenv git
 
   - on Fedora/CentOS:
 
-    $ su -c "yum -y install python-virtualenv git"
+        $ su -c "yum -y install python-virtualenv git"
 
   - on OSX:
 
@@ -45,15 +45,15 @@ Install Python Virtualenv and Git with::
     activate it from the terminal, install Command Line Developer Tools,
     and verify that the compilers are present:
 
-    $ sudo xcodebuild -license
-    $ sudo xcode-select --install
-    $ which llvm-gcc
+        $ sudo xcodebuild -license
+        $ sudo xcode-select --install
+        $ which llvm-gcc
 
     Then install Homebrew (that long ruby line at http://brew.sh/)
     and get the necessary tools using brew:
 
-    $ brew install pyenv-virtualenv git
-    $ brew doctor
+        $ brew install pyenv-virtualenv git
+        $ brew doctor
 
 Create the main directory for all virtualenv environments:
 
@@ -139,7 +139,7 @@ CfnCluster usage
 
 Under the active "project" virtualenv run cfncluster's captive interface:
 
-  $ cfncluster configure
+    $ cfncluster configure
 
 and answer the questions as described at:
 http://cfncluster.readthedocs.org/en/latest/getting_started.html
@@ -151,35 +151,35 @@ CfnCluster creates by default ~/.cfncluster/config based on the provided
 answers with insecure file permissions. Move the file into the virtualenv
 and fix the permissions:
 
-  $ ~/Virtualenvs/project
-  $ mv ~/.cfncluster/config .
-  $ chmod 400 config
+    $ ~/Virtualenvs/project
+    $ mv ~/.cfncluster/config .
+    $ chmod 400 config
 
 We need to customize the config slightly.
 See http://cfncluster.readthedocs.org/en/latest/configuration.html for detailed description:
 
-  $ sed -i 's/update_check =.*/update_check = false/' config  # no CfnCluster updates
-  $ sed -i '/key_name/acompute_instance_type = t2.micro' config  # compute nodes
-  $ sed -i '/key_name/amaster_instance_type = t2.micro' config  # master node
-  $ sed -i '/key_name/ainitial_queue_size = 1' config  # initial no. of compute nodes to launch (default 2)
-  $ sed -i '/key_name/amax_queue_size = 4' config  # max no. of compute nodes to launch (default 10)
-  $ sed -i '/key_name/amaintain_initial_size = false' config  # scale no. of compute nodes down to 0
-  $ sed -i '/key_name/ascheduler = sge' config  # the default is sge
-  $ sed -i '/key_name/acluster_type = ondemand' config  # spot type is also available - check it out!
-  $ sed -i '/key_name/aspot_price = 0.00' config  # spot price
-  $ sed -i '/key_name/amaster_root_volume_size = 10' config  # master root / min. size in GB
-  $ sed -i '/key_name/acompute_root_volume_size = 10' config  # compute root / min. size in GB
-  $ sed -i '/key_name/abase_os = centos6' config  # CentOS 6
-  $ echo '[scaling custom]' >> config
-  $ echo 'scaling_adjustment = 1' >> config  # default is to add 2 instances
+    $ sed -i 's/update_check =.*/update_check = false/' config  # no CfnCluster updates
+    $ sed -i '/key_name/acompute_instance_type = t2.micro' config  # compute nodes
+    $ sed -i '/key_name/amaster_instance_type = t2.micro' config  # master node
+    $ sed -i '/key_name/ainitial_queue_size = 1' config  # initial no. of compute nodes to launch (default 2)
+    $ sed -i '/key_name/amax_queue_size = 4' config  # max no. of compute nodes to launch (default 10)
+    $ sed -i '/key_name/amaintain_initial_size = false' config  # scale no. of compute nodes down to 0
+    $ sed -i '/key_name/ascheduler = sge' config  # the default is sge
+    $ sed -i '/key_name/acluster_type = ondemand' config  # spot type is also available - check it out!
+    $ sed -i '/key_name/aspot_price = 0.00' config  # spot price
+    $ sed -i '/key_name/amaster_root_volume_size = 10' config  # master root / min. size in GB
+    $ sed -i '/key_name/acompute_root_volume_size = 10' config  # compute root / min. size in GB
+    $ sed -i '/key_name/abase_os = centos6' config  # CentOS 6
+    $ echo '[scaling custom]' >> config
+    $ echo 'scaling_adjustment = 1' >> config  # default is to add 2 instances
 
 Upload the [bootstrap.sh](bootstrap.sh) script to S3 (see http://cfncluster.readthedocs.org/en/latest/pre_post_install.html):
 
-  $ AWS_ACCESS_KEY_ID=XXX AWS_SECRET_ACCESS_KEY=XXX aws s3 cp --acl public-read --region eu-central-1 bootstrap.sh s3://created-bucket-name/bootstrap.sh
+    $ AWS_ACCESS_KEY_ID=XXX AWS_SECRET_ACCESS_KEY=XXX aws s3 cp --acl public-read --region eu-central-1 bootstrap.sh s3://created-bucket-name/bootstrap.sh
 
 and modify the config file accordingly:
 
-  $ sed -i '/key_name/apost_install = https://created-bucket-name.s3.amazonaws.com/bootstrap.sh' config  # bootstrap
+    $ sed -i '/key_name/apost_install = https://created-bucket-name.s3.amazonaws.com/bootstrap.sh' config  # bootstrap
 
 Note that you can host bootstrap.sh on a standard http server instead of S3.
 
@@ -187,19 +187,19 @@ The config provides the template for launching a cluster.
 Look at http://cfncluster.readthedocs.org/en/latest/hello_world.html for an example
 of launching a cluster, and launch the cluster for your project under the virtualenv:
 
-  $ cfncluster --config config create project
+    $ cfncluster --config config create project
 
 After a couple of minutes you should see the Master instance and
 one Compute instance on EC2 dashboard, and after some more time the cfncluster
 returns with various information, i.e. about the public IP of the Master (XXX-XXX-XXX-XXX).
 You can ssh to the Master using this IP now:
 
-  $ ssh -i gpaw-on-aws.pem ec2-user@XXX-XXX-XXX-XXX
+    $ ssh -i gpaw-on-aws.pem ec2-user@XXX-XXX-XXX-XXX
 
 Submit a test [sge.sh](sge.sh) job:
 
-  $ qsub sge.sh
-  $ qstat
+    $ qsub sge.sh
+    $ qstat
 
 
 ------------
