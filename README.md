@@ -57,7 +57,7 @@ Install Python Virtualenv and Git with::
 
 Create the main directory for all virtualenv environments:
 
-    $ mkdir ~/Virtualenvs
+    $ mkdir -p ~/Virtualenvs
 
 and initiate your research project virtualenv:
 
