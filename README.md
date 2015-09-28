@@ -292,7 +292,7 @@ This will provide an upper bound to the cost of ownership of a tiny data center.
 
 The total cost of ownership of a tiny, inefficient data center running a single GPAW project is 3500 USD per month.
 This is about half the price of an AWS cluster of reserved instances bound for a 1-year contract, paid upfront.
-Typical GPAW jobs are running over a period of 2 days, and GPAW does not currently implement any
+Typical GPAW jobs are running over a period of 2 to 7 days, and GPAW does not currently implement any
 usable checkpointing feature. This means one cannot currently use AWS spot instances for GPAW projects.
 Implementing a reliable and easy to use checkpointing scheme in GPAW would make AWS spot instances an attractive
 alternative to an ownership of a small data center.
