@@ -9,8 +9,8 @@ The flexibility of AWS allows one to use CfnCluster to create one HPC cluster
 per research project and manage the cluster from e.g. a laptop computer.
 The separation of different project is crucial in order to achieve
 reproducible research. Another convenient feature of CfnCluster is auto-scaling,
-i.e. when no jobs are in the queue only the Master node is running
-(http://cfncluster.readthedocs.org/en/latest/autoscaling.html).
+i.e. when no jobs are in the queue only the Master node is running,
+see http://cfncluster.readthedocs.org/en/latest/autoscaling.html.
 
 As an example GPAW (https://wiki.fysik.dtu.dk/gpaw/), a materials science code written in Python/C
 is run on the cluster using openmpi implementation of MPI (Message Passing Interface).
@@ -97,8 +97,8 @@ anyway in case of exceeding the free resources pool.
 Some steps need to be performed on AWS before you can start using CfnCluster.
 The steps are described at http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/get-set-up-for-amazon-ec2.html
 
-**Note** that AWS documentation is unable to keep up with the actual
-AWS dashboards - many AWS configuration steps performed in the browser
+**Note** that AWS documentation is unable to keep up with the changes to
+the AWS dashboards - many AWS configuration steps performed in the browser
 will involve a bit of guesswork.
 
    1. login to https://aws.amazon.com/ using you Amazon credentials
@@ -149,9 +149,9 @@ and answer the questions as described at:
 http://cfncluster.readthedocs.org/en/latest/getting_started.html
 
 The AWS Access Key ID, and AWS Secret Access Key ID are those
-stored in ~/Virtualenvs/project/credentials.csv
+stored in `~/Virtualenvs/project/credentials.csv`.
 
-CfnCluster creates by default ~/.cfncluster/config based on the provided
+CfnCluster creates by default `~/.cfncluster/config` based on the provided
 answers with insecure file permissions. Move the file into the virtualenv
 and fix the permissions:
 
@@ -164,7 +164,7 @@ See http://cfncluster.readthedocs.org/en/latest/configuration.html for detailed 
     $ sed -i 's/update_check =.*/update_check = false/' config  # no CfnCluster updates
     $ sed -i '/key_name/acompute_instance_type = t2.micro' config  # compute nodes
     $ sed -i '/key_name/amaster_instance_type = t2.micro' config  # master node
-    $ sed -i '/key_name/ainitial_queue_size = 1' config  # initial no. of compute nodes to launch (default 2)
+    $ sed -i '/key_name/ainitial_queue_size = 0' config  # initial no. of compute nodes to launch (default 2)
     $ sed -i '/key_name/amax_queue_size = 4' config  # max no. of compute nodes to launch (default 10)
     $ sed -i '/key_name/amaintain_initial_size = false' config  # scale no. of compute nodes down to 0
     $ sed -i '/key_name/ascheduler = sge' config  # the default is sge
@@ -174,7 +174,11 @@ See http://cfncluster.readthedocs.org/en/latest/configuration.html for detailed 
     $ sed -i '/key_name/acompute_root_volume_size = 10' config  # compute root / min. size in GB
     $ sed -i '/key_name/abase_os = centos6' config  # CentOS 6
     $ echo '[scaling custom]' >> config
+    $ echo 'scaling_threshold = 1' >> config  # default is to scale up when 4 more instances are needed
     $ echo 'scaling_adjustment = 1' >> config  # default is to add 2 instances
+    $ echo 'scaling_threshold2 = 200' >> config  # default is to scale up when 200 more instances are needed
+    $ echo 'scaling_adjustment2 = 0' >> config  # default is to add 20 instances
+    $ echo 'scaling_evaluation_periods = 1' >> config  # default is to use 2 periods
 
 Upload the [bootstrap.sh](bootstrap.sh) script to S3 (see http://cfncluster.readthedocs.org/en/latest/pre_post_install.html):
 
@@ -192,8 +196,8 @@ of launching a cluster, and launch the cluster for your project under the virtua
 
     $ cfncluster --config config create project
 
-After a couple of minutes you should see the Master instance and
-one Compute instance on EC2 dashboard, and after some more time the cfncluster
+After some waiting time (couple of minutes) you should see the Master instance
+on EC2 dashboard, and after some more time the cfncluster
 returns with various information, i.e. about the public IP of the Master (XXX-XXX-XXX-XXX).
 You can ssh to the Master using this IP now:
 
@@ -201,8 +205,97 @@ You can ssh to the Master using this IP now:
 
 Submit a test [sge.sh](sge.sh) job:
 
+    $ cd /shared  # /shared is on EBS storage
     $ qsub sge.sh
     $ qstat
+
+
+-------------
+Data handling
+-------------
+
+You can store you data on AWS persistent storage, but in case the amount of data is small
+mount the AWS storage locally using sshfs:
+
+    $ mkdir -p ~/Virtualenvs/project/shared
+    $ sshfs -o idmap=user -o IdentityFile=`readlink -f gpaw-on-aws.pem` ec2-user@XXX-XXX-XXX-XXX:/shared ~/Virtualenvs/project/shared
+
+You can access the AWS storage this way, e.g. for the purpose of making local backup
+or performing local analysis of data. The latter may be necessary as for
+September 2015 CfnCluster Master is limited to CentOS 6 images without X.
+
+
+----------
+Benchmarks
+----------
+
+EC2 have default resource limit which allows to launch X instances of a give type per region.
+The limit can be increased, see http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-resource-limits.html
+
+The selected GPAW benchmark (see https://wiki.fysik.dtu.dk/gpaw/devel/benchmarks.html#medium-size-system)
+consists of 256 water molecules. It requires at least 16 cores with 2GB RAM per core.
+The benchmark consists of strong scaling on 16, 32, and 64 CPU cores,
+with 16 taken as the reference unit.
+
+Copy the benchmark scripts onto the AWS cluster:
+
+    $ scp -i gpaw-on-aws.pem -r benchmark ec2-user@XXX-XXX-XXX-XXX:/shared
+
+Login to the Master and submit the benchmark:
+
+    [ec2-user@ip-XXX-XXX-XXX-XXX ]$ cd /shared/benchmark
+    [ec2-user@ip-XXX-XXX-XXX-XXX ]$ PATTERN=m4.xlarge sh run.sge.sh
+
+After the calculations finish analyse the results with:
+
+    [ec2-user@ip-XXX-XXX-XXX-XXX ]$ python scaling.py -v --dir=m4.xlarge --pattern="m4.xlarge_*_" b256H2O
+
+
+------------
+Conclusions
+------------
+
+The summary of results is available at [benchmark/analyse.txt](benchmark/analyse.txt)
+The results from various types of AWS instances are compared to the results (labeled as xeon16) collected on
+Intel(R) Xeon(R) CPU E5-2670 0 @ 2.60GHz nodes, 16 CPU cores per node,
+connected by an QDR Infiniband network belonging to the https://wiki.fysik.dtu.dk/niflheim/ cluster.
+
+For an average GPAW user AWS is not yet an attractive alternative to an ownership of a data center in terms of price.
+A typical GPAW project on https://wiki.fysik.dtu.dk/niflheim/ consists of ~256 CPU cores running continuously
+over a period of few months. Average single job uses 32 CPU cores. About 100 GBytes of filesystem work storage
+(corresponding to AWS EBS) and 1 TByte of archive storage (AWS S3) is used.  
+
+The storage on AWS will cost (see https://aws.amazon.com/ebs/pricing/ and https://aws.amazon.com/s3/pricing/):
+0.119 USD / GB / month * 100 GB + 0.0324 USD / GB / month * 1000 GB ~ 44 USD / month
+
+The compute on AWS would cost (see https://aws.amazon.com/ec2/pricing/), for the c4.4xlarge 16 CPU cores instance:
+
+- on-demand: 256 / 16 * 24 hour / day * 30 day / month * 1.125 USD / hour = 11520 hour / month * 1.125 USD / hour ~ 13000 USD / month
+
+- reserved instance, 1-year term: 11520 hour / month * 0.7262 USD / hour ~ 8500 USD / month
+
+- reserved instance, 3-year term: 11520 hour / month * 0.523 USD / hour ~ 6000 USD / month
+
+- spot instance: 11520 hour / month * 0.2095 USD / hour ~ 2500 USD / month 
+
+On the other hand let's take a hypothetical data center with efficiency of 3.0 PUE
+(https://en.wikipedia.org/wiki/Power_usage_effectiveness), running 16 300 Watt servers each costing 5000 USD and
+replaced every 50 months, taking the price of kWh to be 0.1 USD. The center is operated by one system administrator
+with a monthly salary of 5000 USD, and who shares this task with operating other servers.
+This will provide an upper bound to the cost of ownership of a tiny data center.
+
+- the cost of energy per month is: 16 server * 300 Watt / 1000 * kWh / Watt * 3.0 * 700 hour / month * 0.1 USD ~ 1000 USD
+
+- the cost of the hardware per month is: 5000 USD / server * 16 server / 50 month ~ 1600 USD / month
+
+- the cost of administration per month, taking one system administrator operates 100 servers: 5000 USD / 100 * 16 ~ 800 USD
+
+The total cost of ownership of a tiny, inefficient data center running a single GPAW project is 3500 USD per month.
+This is about half the price of an AWS cluster of reserved instances bound for a 1-year contract, paid upfront.
+Typical GPAW jobs are running over a period of 2 days, and GPAW does not currently implement any
+usable checkpointing feature. This means one cannot currently use AWS spot instances for GPAW projects.
+Implementing a reliable and easy to use checkpointing scheme in GPAW would make AWS spot instances an attractive
+alternative to an ownership of a small data center.
 
 
 ------------
@@ -223,3 +316,4 @@ BSD 2-clause
 Todo
 ----
 
+Compare performance of other AWS instances.

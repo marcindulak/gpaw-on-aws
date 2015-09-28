@@ -13,6 +13,5 @@ module purge
 module load openmpi-x86_64
 
 cat $PE_HOSTFILE | awk '{printf("%s slots=%d\n", $1, $2)}' > $TMP/hostfile
-gpawdir=`gpaw-python_openmpi -c "import gpaw; import os; print os.path.dirname(gpaw.__file__)"`
-mpiexec --hostfile $TMP/hostfile -np $NSLOTS gpaw-python_openmpi $gpawdir/test/pw/si_stress.py
+mpiexec --hostfile $TMP/hostfile -np $NSLOTS gpaw-python_openmpi ../../b256H2O.py --sl_default=4,4,64
 
