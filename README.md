@@ -27,15 +27,15 @@ All commands below should be executed as a standard user (**NO** sudo!),
 unless explicitly stated.
 The standard user prompt is marked by the **$** (dollar) sign.
 
-Install Python Virtualenv and Git with::
+Install Python Virtualenv with::
 
   - on Debian/Ubuntu:
 
-        $ sudo apt-get install -y python-virtualenv git
+        $ sudo apt-get install -y python-virtualenv
 
   - on Fedora/CentOS:
 
-        $ su -c "yum -y install python-virtualenv git"
+        $ su -c "yum -y install python-virtualenv"
 
   - on OSX:
 
@@ -52,8 +52,20 @@ Install Python Virtualenv and Git with::
     Then install Homebrew (that long ruby line at http://brew.sh/)
     and get the necessary tools using brew:
 
-        $ brew install pyenv-virtualenv git
+        $ echo 'ARCHFLAGS="-arch x86_64"' >>  ~/.bash_profile
+        $ echo 'export PATH=/usr/local/bin:$PATH' >>  ~/.bash_profile
+        $ source ~/.bash_profile
+        $ brew install python
         $ brew doctor
+
+    Install virtualenv, sadly with pip :(:
+
+        $ pip install virtualenv
+
+    and configure pip to run **only** under virtualenv:
+
+        $ echo 'export PIP_REQUIRE_VIRTUALENV=true' >> ~/.bash_profile
+        $ source ~/.bash_profile
 
 Create the main directory for all virtualenv environments:
 
@@ -122,9 +134,9 @@ will involve a bit of guesswork.
    4. as "user1", in the top right corner choose the desirable Region (e.g. Frankfurt == eu-central-1)
 
    5. as "user1", open EC2 console (top left of the Amazon Web Services dashboard) and
-      create key pair named "gpaw-on-aws" and store the automatically downloaded file secretly:
+      create key pair named "gpaw-on-aws-eu-central-1" and store the automatically downloaded file secretly:
 
-          $ chmod 400 ~/Virtualenvs/project/gpaw-on-aws.pem
+          $ chmod 400 ~/Virtualenvs/project/gpaw-on-aws-eu-central-1.pem
        
       The key is bound to the AWS region under which is has been created.
 
@@ -201,7 +213,7 @@ on EC2 dashboard, and after some more time the cfncluster
 returns with various information, i.e. about the public IP of the Master (XXX-XXX-XXX-XXX).
 You can ssh to the Master using this IP now:
 
-    $ ssh -i gpaw-on-aws.pem ec2-user@XXX-XXX-XXX-XXX
+    $ ssh -i gpaw-on-aws-eu-central-1.pem ec2-user@XXX-XXX-XXX-XXX
 
 Submit a test [sge.sh](sge.sh) job:
 
@@ -218,7 +230,7 @@ You can store you data on AWS persistent storage, but in case the amount of data
 mount the AWS storage locally using sshfs:
 
     $ mkdir -p ~/Virtualenvs/project/shared
-    $ sshfs -o idmap=user -o IdentityFile=`readlink -f gpaw-on-aws.pem` ec2-user@XXX-XXX-XXX-XXX:/shared ~/Virtualenvs/project/shared
+    $ sshfs -o idmap=user -o IdentityFile=`readlink -f gpaw-on-aws-eu-central-1.pem` ec2-user@XXX-XXX-XXX-XXX:/shared ~/Virtualenvs/project/shared
 
 You can access the AWS storage this way, e.g. for the purpose of making local backup
 or performing local analysis of data. The latter may be necessary as for
@@ -239,7 +251,7 @@ with 16 taken as the reference unit.
 
 Copy the benchmark scripts onto the AWS cluster:
 
-    $ scp -i gpaw-on-aws.pem -r benchmark ec2-user@XXX-XXX-XXX-XXX:/shared
+    $ scp -i gpaw-on-aws-eu-central-1.pem -r benchmark ec2-user@XXX-XXX-XXX-XXX:/shared
 
 Login to the Master and submit the benchmark:
 
@@ -260,10 +272,13 @@ The results from various types of AWS instances are compared to the results (lab
 Intel(R) Xeon(R) CPU E5-2670 0 @ 2.60GHz nodes, 16 CPU cores per node,
 connected by an QDR Infiniband network belonging to the https://wiki.fysik.dtu.dk/niflheim/ cluster.
 
-For an average GPAW user AWS is not yet an attractive alternative to an ownership of a data center in terms of price.
+For an average GPAW user AWS is an attractive alternative to an ownership of a data center in terms of price for small, short term projects.
 A typical GPAW project on https://wiki.fysik.dtu.dk/niflheim/ consists of ~256 CPU cores running continuously
 over a period of few months. Average single job uses 32 CPU cores. About 100 GBytes of filesystem work storage
 (corresponding to AWS EBS) and 1 TByte of archive storage (AWS S3) is used.  
+
+The prices quoted below are for the Frankfurt (eu-central-1) region,
+September 27 2015. US regions prices are normally 20% lower.
 
 The storage on AWS will cost (see https://aws.amazon.com/ebs/pricing/ and https://aws.amazon.com/s3/pricing/):
 0.119 USD / GB / month * 100 GB + 0.0324 USD / GB / month * 1000 GB ~ 44 USD / month
@@ -290,8 +305,14 @@ This will provide an upper bound to the cost of ownership of a tiny data center.
 
 - the cost of administration per month, taking one system administrator operates 100 servers: 5000 USD / 100 * 16 ~ 800 USD
 
+- the costs of of building the server room are ignored
+
 The total cost of ownership of a tiny, inefficient data center running a single GPAW project is 3500 USD per month.
-This is about half the price of an AWS cluster of reserved instances bound for a 1-year contract, paid upfront.
+This is about half the price of an AWS cluster of reserved instances run in Frankfurt
+bound for a 1-year contract, paid upfront. However, running reserved instances
+on a 3-year term contract in an US region costs only 4000 USD per month
+(effective hourly price of c4.4xlarge in N. Virgina is 0.3437 USD / hour).
+
 Typical GPAW jobs are running over a period of 2 to 7 days, and GPAW does not currently implement any
 usable checkpointing feature. This means one cannot currently use AWS spot instances for GPAW projects.
 Implementing a reliable and easy to use checkpointing scheme in GPAW would make AWS spot instances an attractive
