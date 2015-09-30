@@ -305,7 +305,7 @@ This will provide an upper bound to the cost of ownership of a tiny data center.
 
 - the cost of administration per month, taking one system administrator operates 100 servers: 5000 USD / 100 * 16 ~ 800 USD
 
-- the costs of of building the server room are ignored
+- the costs of of building the server room are ignored or hosting the servers physically somewhere
 
 The total cost of ownership of a tiny, inefficient data center running a single GPAW project is 3500 USD per month.
 This is about half the price of an AWS cluster of reserved instances run in Frankfurt
