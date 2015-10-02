@@ -284,7 +284,8 @@ After collecting all the results perform the analysis with:
 Results and cost comparison
 ---------------------------
 
-The summary of the results is shown on the plot below [benchmark/plot.png](benchmark/plot.png),
+The summary of the results is shown on the plot below
+![plot.png](https://raw.github.com/marcindulak/gpaw-on-aws/master/benchmarks/plot.png)
 and available as csv file [benchmark/plot.csv](benchmark/plot.csv).
 
 The results from various types of AWS instances are compared to the results (labeled as Niflheim) collected on
