@@ -14,6 +14,9 @@ see http://cfncluster.readthedocs.org/en/latest/autoscaling.html.
 
 As an example GPAW (https://wiki.fysik.dtu.dk/gpaw/), a materials science code written in Python/C
 is run on the cluster using openmpi implementation of MPI (Message Passing Interface).
+GPAW is benchmarked on various types of AWS instances using a realistic materials science simulation.
+
+All benchmarks in this project were performed in the Frankfurt AWS region (eu-central-1) and summed up to $30 USD.
 
 
 -----------------------
@@ -221,6 +224,14 @@ Submit a test [sge.sh](sge.sh) job:
     $ qsub sge.sh
     $ qstat
 
+You can update the settings for the currently running cluster by changing the `config` file and:
+
+    $ cfncluster --config config update project
+
+In order to completely delete the cluster:
+
+    $ cfncluster --config config delete project
+
 
 -------------
 Data handling
@@ -243,6 +254,7 @@ Benchmarks
 
 EC2 have default resource limit which allows to launch X instances of a give type per region.
 The limit can be increased, see http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-resource-limits.html
+however one must be an "established" customer.
 
 The selected GPAW benchmark (see https://wiki.fysik.dtu.dk/gpaw/devel/benchmarks.html#medium-size-system)
 consists of 256 water molecules. It requires at least 16 cores with 2GB RAM per core.
@@ -258,23 +270,49 @@ Login to the Master and submit the benchmark:
     [ec2-user@ip-XXX-XXX-XXX-XXX ]$ cd /shared/benchmark
     [ec2-user@ip-XXX-XXX-XXX-XXX ]$ PATTERN=m4.xlarge sh run.sge.sh
 
-After the calculations finish analyse the results with:
+After the calculations finish analyse the results with, e.g.:
 
     [ec2-user@ip-XXX-XXX-XXX-XXX ]$ python scaling.py -v --dir=m4.xlarge --pattern="m4.xlarge_*_" b256H2O
 
+After collecting all the results perform the analysis with:
 
-------------
-Conclusions
-------------
+    [ec2-user@ip-XXX-XXX-XXX-XXX ]$ sh analyse.sh | grep -v Warning > analyse.txt
+    [ec2-user@ip-XXX-XXX-XXX-XXX ]$ python plot.py
 
-The summary of results is available at [benchmark/analyse.txt](benchmark/analyse.txt)
-The results from various types of AWS instances are compared to the results (labeled as xeon16) collected on
+
+---------------------------
+Results and cost comparison
+---------------------------
+
+The summary of the results is shown on the plot below [benchmark/plot.png](benchmark/plot.png),
+and available as csv file [benchmark/plot.csv](benchmark/plot.csv).
+
+The results from various types of AWS instances are compared to the results (labeled as Niflheim) collected on
 Intel(R) Xeon(R) CPU E5-2670 0 @ 2.60GHz nodes, 16 CPU cores per node,
 connected by an QDR Infiniband network belonging to the https://wiki.fysik.dtu.dk/niflheim/ cluster.
+GPAW on AWS is the standard package available in the EPEL repository built against openblas-0.2.14 and openmpi-1.8.1,
+while GPAW of Nilfheim uses openblas-0.2.13 and openmpi-1.6.3. Both builds use the same gcc-4.4.7.
+Note that the benchmarks were run 3 times, and the best (fastest) run was taken,
+due to variations of running time on Linux cluster clusters.
 
-For an average GPAW user AWS is an attractive alternative to an ownership of a data center in terms of price for small, short term projects.
-A typical GPAW project on https://wiki.fysik.dtu.dk/niflheim/ consists of ~256 CPU cores running continuously
-over a period of few months. Average single job uses 32 CPU cores. About 100 GBytes of filesystem work storage
+It is difficult to compare the performance of the Niflheim's xeon16 nodes to the AWS instances.
+The most similar instance to Niflheim's xeon16 is the m3.2xlarge one, but it has 8 instead of 16 cores and
+the cpu clock of 2.5 instead of 2.6 GHz. The performance achieved by m3.2xlarge, even taking into account
+that the benchmark on 16 cores involves 2 AWS nodes and single Niflheim node and as such
+differs in network usage, is nevertheless surprisingly low compared to Niflheim.
+
+All tested AWS instances with Networking Performance "High",
+were measured with iperf to be ~900 Mbit/sec, with ~10% fluctuations,
+and show lower strong scaling efficiency than infiniband connected Niflheim's nodes.
+The 10 GBit/sec connected AWS instances were not tested.
+The CPU performance of the AWS instances (non-burstable ones) shows 5% fluctuations typical for servers running standard Linux.
+This together with network instabilities translates into up to 20% (largest seen) of performance fluctuations for multi-node jobs,
+which is rather on a high side for a COTS (commercial off-the-shelf) Linux cluster.
+
+For an average GPAW user AWS is not yet an attractive alternative to an ownership of a data center in terms of price for small,
+short term projects with instances running non-stop (AWS bills per every started hour on an instance).
+A typical GPAW project on https://wiki.fysik.dtu.dk/niflheim/ consists of ~256 CPU cores
+running continuously over a period of few months. Average single job uses 32 CPU cores. About 100 GBytes of filesystem work storage
 (corresponding to AWS EBS) and 1 TByte of archive storage (AWS S3) is used.  
 
 The prices quoted below are for the Frankfurt (eu-central-1) region,
@@ -283,7 +321,7 @@ September 27 2015. US regions prices are normally 20% lower.
 The storage on AWS will cost (see https://aws.amazon.com/ebs/pricing/ and https://aws.amazon.com/s3/pricing/):
 0.119 USD / GB / month * 100 GB + 0.0324 USD / GB / month * 1000 GB ~ 44 USD / month
 
-The compute on AWS would cost (see https://aws.amazon.com/ec2/pricing/), for the c4.4xlarge 16 CPU cores instance:
+The compute on AWS would cost (see https://aws.amazon.com/ec2/pricing/), for the c4.4xlarge 16 CPU cores instance is:
 
 - on-demand: 256 / 16 * 24 hour / day * 30 day / month * 1.125 USD / hour = 11520 hour / month * 1.125 USD / hour ~ 13000 USD / month
 
@@ -292,6 +330,11 @@ The compute on AWS would cost (see https://aws.amazon.com/ec2/pricing/), for the
 - reserved instance, 3-year term: 11520 hour / month * 0.523 USD / hour ~ 6000 USD / month
 
 - spot instance: 11520 hour / month * 0.2095 USD / hour ~ 2500 USD / month 
+
+The c4.4xlarge instance (Intel(R) Xeon(R) CPU E5-2666 v3 @ 2.90GHz) turned out to provide
+the best performance to cost ratio and therefore selected in the above estimation.
+The AWS t2 (burstable) instances cannot be used for production jobs, because their low CPU Credit gets
+exceeded quickly and the performance stalls.
 
 On the other hand let's take a hypothetical data center with efficiency of 3.0 PUE
 (https://en.wikipedia.org/wiki/Power_usage_effectiveness), running 16 300 Watt servers each costing 5000 USD and
@@ -308,15 +351,33 @@ This will provide an upper bound to the cost of ownership of a tiny data center.
 - the costs of of building the server room or hosting the servers physically somewhere are ignored
 
 The total cost of ownership of a tiny, inefficient data center running a single GPAW project is 3500 USD per month.
-This is about half the price of an AWS cluster of reserved instances run in Frankfurt
-bound for a 1-year contract, paid upfront. However, running reserved instances
-on a 3-year term contract in an US region costs only 4000 USD per month
-(effective hourly price of c4.4xlarge in N. Virgina is 0.3437 USD / hour).
+Thist cost if higher than running the project on Niflheim, and nevertheless about half the price of an AWS cluster
+of c4.4xlarge reserved instances run in Frankfurt bound for a 1-year contract, paid upfront.
+Note however that the same instances on a 3-year term contract in an US region costs only 4000 USD per month, with
+an effective hourly price of c4.4xlarge in N. Virgina is 0.3437 USD / hour / instance.
+
+
+-----------
+Conclusions
+-----------
+
+The performance for a realistic GPAW benchmark running the default CentOS 6 RPM available in the
+EPEL repository is surprisingly low on AWS.
+The most cost effective way of using GPAW on AWS seems to be currently the c4.4xlarge instance
+(or, for larger jobs, possibly c4.8xlarge, thanks to it's 10 Gbit/sec networking) run in an US region on a 3-year contract.
+In addition to these instances, burstable t2 instances are the most cost effective for performing short tests.
 
 Typical GPAW jobs are running over a period of 2 to 7 days, and GPAW does not currently implement any
 usable checkpointing feature. This means one cannot currently use AWS spot instances for GPAW projects.
 Implementing a reliable and easy to use checkpointing scheme in GPAW would make AWS spot instances an attractive
 alternative to an ownership of a small data center.
+
+Estimating the total cost of ownership of a COTS (components off-the-shelf) Linux data center
+is difficult in view of instabilities in performance on the software/hardware side, and
+differences in performance depending on the amount of work spent on optimizing the application
+for the given hardware platform.
+Therefore anyone trying to compare a traditional data center to AWS or other cloud
+providers should make the relevant calculations himself.
 
 
 ------------
@@ -337,4 +398,3 @@ BSD 2-clause
 Todo
 ----
 
-Compare performance of other AWS instances.
