@@ -298,9 +298,11 @@ due to variations of running time on Linux cluster clusters.
 
 It is difficult to compare the performance of the Niflheim's xeon16 nodes to the AWS instances.
 The most similar instance to Niflheim's xeon16 is the m3.2xlarge one, but it has 8 instead of 16 cores and
-the cpu clock of 2.5 instead of 2.6 GHz. The performance achieved by m3.2xlarge, even taking into account
-that the benchmark on 16 cores involves 2 AWS nodes and single Niflheim node and as such
-differs in network usage, is nevertheless surprisingly low compared to Niflheim.
+the cpu clock of 2.5 instead of 2.6 GHz.
+The performance achieved by two m3.2xlarge instances (16 cores) is almost two times lower compared to Niflheim.
+The primary reason for this is in the hyper-threading on AWS instances,
+and to a lesser extent the fact that the 16 cores benchmark involves 2 AWS nodes,
+and as such network communication, compared to a single Niflheim node. 
 
 All tested AWS instances with Networking Performance "High",
 were measured with iperf to be ~900 Mbit/sec, with ~10% fluctuations,
@@ -353,8 +355,8 @@ This will provide an upper bound to the cost of ownership of a tiny data center.
 The total cost of ownership of a tiny, inefficient data center running a single GPAW project is 3500 USD per month.
 Thist cost if higher than running the project on Niflheim, and nevertheless about half the price of an AWS cluster
 of c4.4xlarge reserved instances run in Frankfurt bound for a 1-year contract, paid upfront.
-Taking into account the surprisingly low performance of the c4.4xlarge AWS instances, the cost of running
-on AWS is even less attractive.
+Taking into account hyper-threading on the c4.4xlarge AWS instances, the cost of running
+on AWS is even less (almost 2 times) attractive.
 Note however that the same instances on a 3-year term contract in an US region costs only 4000 USD per month, with
 an effective hourly price of c4.4xlarge in N. Virgina is 0.3437 USD / hour / instance.
 
