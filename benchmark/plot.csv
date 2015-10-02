@@ -1,6 +1,6 @@
 ID,16 core price/hour in USD,total time in sec,price of the 16 cores run in USD cents,cpu type
 c4.4xlarge,1.125,792.0,24.75,16 cores Intel(R) Xeon(R) CPU E5-2666 v3 @ 2.90GHz ECU 62
 d2.4xlarge,3.176,858.0,75.69466666666668,16 cores Intel(R) Xeon(R) CPU E5-2676 v3 @ 2.40GHz ECU 56
-m3.x2large,1.264,870.0,30.546666666666667,8 cores Intel(R) Xeon(R) CPU E5-2670 v2 @ 2.50GHz ECU 26
+m3.2xlarge,1.264,870.0,30.546666666666667,8 cores Intel(R) Xeon(R) CPU E5-2670 v2 @ 2.50GHz ECU 26
 m4.xlarge,1.2,835.0,27.833333333333332,4 cores Intel(R) Xeon(R) CPU E5-2676 v3 @ 2.40GHz ECU 13
 xeon16.openblas.SL,0.3038194444444444,511.0,4.312548225308642,16 cores Intel(R) Xeon(R) CPU E5-2670 0 @ 2.60GHz

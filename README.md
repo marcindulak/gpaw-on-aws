@@ -285,8 +285,8 @@ Results and cost comparison
 ---------------------------
 
 The summary of the results is shown on the plot below
+and available also as csv file [benchmark/plot.csv](benchmark/plot.csv).
 ![plot.png](https://raw.github.com/marcindulak/gpaw-on-aws/master/benchmark/plot.png)
-and available as csv file [benchmark/plot.csv](benchmark/plot.csv).
 
 The results from various types of AWS instances are compared to the results (labeled as Niflheim) collected on
 Intel(R) Xeon(R) CPU E5-2670 0 @ 2.60GHz nodes, 16 CPU cores per node,
