@@ -310,8 +310,7 @@ The CPU performance of the AWS instances (non-burstable ones) shows 5% fluctuati
 This together with network instabilities translates into up to 20% (largest seen) of performance fluctuations for multi-node jobs,
 which is rather on a high side for a COTS (commercial off-the-shelf) Linux cluster.
 
-For an average GPAW user AWS is not yet an attractive alternative to an ownership of a data center in terms of price for small,
-short term projects with instances running non-stop (AWS bills per every started hour on an instance).
+For an average GPAW user AWS is not yet an attractive alternative to an ownership of a data center in terms of price.
 A typical GPAW project on https://wiki.fysik.dtu.dk/niflheim/ consists of ~256 CPU cores
 running continuously over a period of few months. Average single job uses 32 CPU cores. About 100 GBytes of filesystem work storage
 (corresponding to AWS EBS) and 1 TByte of archive storage (AWS S3) is used.  
@@ -354,6 +353,8 @@ This will provide an upper bound to the cost of ownership of a tiny data center.
 The total cost of ownership of a tiny, inefficient data center running a single GPAW project is 3500 USD per month.
 Thist cost if higher than running the project on Niflheim, and nevertheless about half the price of an AWS cluster
 of c4.4xlarge reserved instances run in Frankfurt bound for a 1-year contract, paid upfront.
+Taking into account the surprisingly low performance of the c4.4xlarge AWS instances, the cost of running
+on AWS is even less attractive.
 Note however that the same instances on a 3-year term contract in an US region costs only 4000 USD per month, with
 an effective hourly price of c4.4xlarge in N. Virgina is 0.3437 USD / hour / instance.
 
