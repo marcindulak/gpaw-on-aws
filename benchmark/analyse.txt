@@ -1,6 +1,6 @@
 # Niflheim xeon16.openblas.SL 3500./16/(24*30), openblas-0.2.13 ScaLapack 2.0.2, 16 cores Intel(R) Xeon(R) CPU E5-2670 0 @ 2.60GHz
 # p - processes, p0 - reference processes, t - time [sec], s - speedup, e - efficiency
-# GPAW version 13180: stages: 1 - initialization, 2 - fixdensity, 3 - SCF, 4 - forces, 5 - total
+# GPAW version 13004: stages: 1 - initialization, 2 - fixdensity, 3 - SCF, 4 - forces, 5 - total
 # p     p/p0   t1      s1      e1    t2      s2      e2    t3      s3      e3    t4      s4      e4    t5      s5      e5
      16   1.00   113.0    16.0  1.00   234.0    16.0  1.00   164.0    16.0  1.00     0.0     0.0  0.00   511.0    16.0  1.00
      32   2.00    67.0    27.0  0.84   114.0    32.8  1.03    80.0    32.8  1.02     0.0     0.0  0.00   261.0    31.3  0.98
