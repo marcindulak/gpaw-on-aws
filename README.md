@@ -308,7 +308,7 @@ and show lower strong scaling efficiency than infiniband connected Niflheim's no
 The 10 GBit/sec connected AWS instances were not tested.
 The CPU performance of the AWS instances (non-burstable ones) shows 5% fluctuations typical for servers running standard Linux.
 This together with network instabilities translates into up to 20% (largest seen) of performance fluctuations for multi-node jobs,
-which is rather on a high side for a COTS (commercial off-the-shelf) Linux cluster.
+common for a COTS (commercial off-the-shelf) Linux cluster.
 
 For an average GPAW user AWS is not yet an attractive alternative to an ownership of a data center in terms of price.
 A typical GPAW project on https://wiki.fysik.dtu.dk/niflheim/ consists of ~256 CPU cores
