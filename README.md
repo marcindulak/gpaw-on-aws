@@ -7,7 +7,7 @@ cluster on AWS (Amazon Web Services) using http://aws.amazon.com/hpc/cfncluster/
 
 The flexibility of AWS allows one to use CfnCluster to create one HPC cluster
 per research project and manage the cluster from e.g. a laptop computer.
-The separation of different project is crucial in order to achieve
+The separation of different projects is crucial in order to achieve
 reproducible research. Another convenient feature of CfnCluster is auto-scaling,
 i.e. when no jobs are in the queue only the Master node is running,
 see http://cfncluster.readthedocs.org/en/latest/autoscaling.html.
@@ -81,9 +81,9 @@ and initiate your research project virtualenv:
     $ cd ~/Virtualenvs/project
     $ . bin/activate
 
-**Note**: you can identify you are in the "project" virtualenv by
+**Note**: you can recognize that you are in the "project" virtualenv by
 the "(project)" appearing on the left of the shell prompt.
-In order to exit a given virtualenv do:
+In order to exit a given virtualenv:
 
     (project)me@laptop:~/Virtualenvs/project$ deactivate
 
@@ -107,7 +107,7 @@ The AWS service are available under your standard Amazon account.
 Create one if needed. Note that there is a standing "AWS Free Tier"
 offer at https://aws.amazon.com/free/ . You can use it to try out this
 tutorial, but you will need to provide credit card details to Amazon
-anyway in case of exceeding the free resources pool.
+anyway in case of exceeding the free resource pool.
 
 Some steps need to be performed on AWS before you can start using CfnCluster.
 The steps are described at http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/get-set-up-for-amazon-ec2.html
@@ -119,16 +119,19 @@ will involve a bit of guesswork.
    1. login to https://aws.amazon.com/ using you Amazon credentials
 
    2. create IAM group and user at https://console.aws.amazon.com/iam/ 
-      You will use the credentials associated with this users to access the cluster.
+      You will use the credentials associated with this user to access the cluster.
       You must **NOT** use you Amazon credentials for daily work on the cluster.
       For the purpose of this tutorial create the "gpaw-on-aws" group and "user1".
       Download the user's credentials (csv file) and store is secretly:
 
           $ chmod 400 ~/Virtualenvs/project/credentials.csv
       
-      Add the user to the "gpaw-on-aws" group. Select the individual
+      Add the user to the "gpaw-on-aws" group. Make sure the user
+      has administrative privileges. Select the individual
       user and create a password using the "Manage Password" button.
-      Write down the https://your_aws_account_id.signin.aws.amazon.com/console/
+      This user/password will be used to access the AWS dashboards of your cluster.
+      Write down the "your_aws_account_id" of
+      https://your_aws_account_id.signin.aws.amazon.com/console/
       available at https://console.aws.amazon.com/iam/ and logout.
    
    3. login as an IAM "user1" at https://your_aws_account_id.signin.aws.amazon.com/console/
@@ -167,8 +170,8 @@ The AWS Access Key ID, and AWS Secret Access Key ID are those
 stored in `~/Virtualenvs/project/credentials.csv`.
 
 CfnCluster creates by default `~/.cfncluster/config` based on the provided
-answers with insecure file permissions. Move the file into the virtualenv
-and fix the permissions:
+answers with insecure file permissions. Move the file into the virtualenv project
+directory and fix the permissions:
 
     $ mv ~/.cfncluster/config .
     $ chmod 400 config
@@ -212,7 +215,7 @@ of launching a cluster, and launch the cluster for your project under the virtua
     $ cfncluster --config config create project
 
 After some waiting time (couple of minutes) you should see the Master instance
-on EC2 dashboard, and after some more time the cfncluster
+appearing on the EC2 dashboard, and after some more time the cfncluster
 returns with various information, i.e. about the public IP of the Master (XXX-XXX-XXX-XXX).
 You can ssh to the Master using this IP now:
 
@@ -291,12 +294,12 @@ and available also as csv file [benchmark/plot.csv](benchmark/plot.csv).
 The results from various types of AWS instances are compared to the results (labeled as Niflheim) collected on
 Intel(R) Xeon(R) CPU E5-2670 0 @ 2.60GHz nodes, 16 CPU cores per node,
 connected by an QDR Infiniband network belonging to the https://wiki.fysik.dtu.dk/niflheim/ cluster.
-GPAW on AWS is the standard package available in the EPEL repository built against openblas-0.2.14 and openmpi-1.8.1,
-while GPAW of Nilfheim uses openblas-0.2.13 and openmpi-1.6.3. Both builds use the same gcc-4.4.7.
-Note that the benchmarks were run 3 times, and the best (fastest) run was taken,
-due to variations of running time on Linux cluster clusters.
+GPAW installed on AWS is the standard package available in the EPEL repository built against openblas-0.2.14
+and openmpi-1.8.1, while GPAW of Nilfheim uses openblas-0.2.13 and openmpi-1.6.3.
+Both builds use the same gcc-4.4.7. Note that the benchmarks were run 3 times, and the best (fastest)
+run was taken, due to variations of running time on Linux cluster clusters.
 
-It is difficult to compare the performance of the Niflheim's xeon16 nodes to the AWS instances.
+It is difficult to compare the performance of the Niflheim's xeon16 nodes to the AWS instances directly.
 The most similar instance to Niflheim's xeon16 is the m3.2xlarge one, but it has 8 instead of 16 cores and
 the cpu clock of 2.5 instead of 2.6 GHz.
 The performance achieved by two m3.2xlarge instances (16 cores) is almost two times lower compared to Niflheim.
@@ -320,10 +323,10 @@ running continuously over a period of few months. Average single job uses 32 CPU
 The prices quoted below are for the Frankfurt (eu-central-1) region,
 September 27 2015. US regions prices are normally 20% lower.
 
-The storage on AWS will cost (see https://aws.amazon.com/ebs/pricing/ and https://aws.amazon.com/s3/pricing/):
+The cost of storage on AWS is negligible (see https://aws.amazon.com/ebs/pricing/ and https://aws.amazon.com/s3/pricing/):
 0.119 USD / GB / month * 100 GB + 0.0324 USD / GB / month * 1000 GB ~ 44 USD / month
 
-The compute on AWS would cost (see https://aws.amazon.com/ec2/pricing/), for the c4.4xlarge 16 CPU cores instance is:
+The compute on AWS would cost (see https://aws.amazon.com/ec2/pricing/), for the c4.4xlarge 16 CPU cores instance:
 
 - on-demand: 256 / 16 * 24 hour / day * 30 day / month * 1.125 USD / hour = 11520 hour / month * 1.125 USD / hour ~ 13000 USD / month
 
@@ -357,8 +360,8 @@ Thist cost if higher than running the project on Niflheim, and nevertheless abou
 of c4.4xlarge reserved instances run in Frankfurt bound for a 1-year contract, paid upfront.
 Taking into account hyper-threading on the c4.4xlarge AWS instances, the cost of running
 on AWS is even less (almost 2 times) attractive.
-Note however that the same instances on a 3-year term contract in an US region costs only 4000 USD per month, with
-an effective hourly price of c4.4xlarge in N. Virgina is 0.3437 USD / hour / instance.
+Note however that the same instances on a 3-year term contract in an US region costs only 4000 USD per month,
+taking the effective hourly price of c4.4xlarge in N. Virgina is 0.3437 USD / hour / instance.
 
 
 -----------
